@@ -1,6 +1,5 @@
 #ifndef DECK_H
 #define DECK_H
-
 /**
  * enum kind_e - card kind
  * @SPADE: spade kind
