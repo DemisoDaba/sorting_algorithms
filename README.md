@@ -1,1 +1,1 @@
-This is just Readme.md
+This is readme
