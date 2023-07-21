@@ -1,115 +1,112 @@
 #include "deck.h"
-#include <stdio.h>
-/**
- *_strcmp - compare two strings
- *@str1: string
- *@str2: string
- *Return: 1 str1 and str2 is equal, 0 they are not equal
- */
-int _strcmp(const char *str1, char *str2)
-{
-	size_t i = 0;
-
-	if (str1 == '\0')
-		return (0);
-	while (str1[i])
-	{
-		if (str1[i] != str2[i])
-			return (0);
-		i++;
-	}
-	if (str1[i] == '\0' && str2[i])
-		return (0);
-	return (1);
-}
-/**
- * get_card_position - return the position based on card you put in
- * @node: represent the card
- * Return: return the card position
- */
-int get_card_position(deck_node_t *node)
-{
-	int value;
-
-	value = (*node).card->value[0] - '0';
-	if (value < 50 || value > 57)
-	{
-		if (_strcmp((*node).card->value, "Ace") == 1)
-			value = 1;
-		else if (_strcmp((*node).card->value, "10") == 1)
-			value = 10;
-		else if (_strcmp((*node).card->value, "Jack") == 1)
-			value = 11;
-		else if (_strcmp((*node).card->value, "Queen") == 1)
-			value = 12;
-		else if (_strcmp((*node).card->value, "King") == 1)
-			value = 13;
-	}
-	value += (*node).card->kind * 13;
-	return (value);
-}
-/**
- *swap_card - swap a card for his previous one
- *@card: card
- *@deck: card deck
- *Return: return a pointer to a card which was enter it
- */
-deck_node_t *swap_card(deck_node_t *card, deck_node_t **deck)
-{
-	deck_node_t *back = card->prev, *current = card;
-	/*NULL, 19, 48, 9, 71, 13, NULL*/
-
-	back->next = current->next;
-	if (current->next)
-		current->next->prev = back;
-	current->next = back;
-	current->prev = back->prev;
-	back->prev = current;
-	if (current->prev)
-		current->prev->next = current;
-	else
-		*deck = current;
-	return (current);
-}
 
 /**
- * insertion_sort_deck - function that sorts a doubly linked deck
- * of integers in ascending order using the Insertion sort algorithm
- * @deck: Dobule linked deck to sort
- */
-void insertion_sort_deck(deck_node_t **deck)
-{
-	int value_prev, value_current;
-	deck_node_t *node;
-
-	if (deck == NULL || (*deck)->next == NULL)
-		return;
-	node = (*deck)->next;
-	while (node)
-	{
-		/* preparing the previous value */
-		if (node->prev)
-		{
-			value_prev = get_card_position((node->prev));
-			value_current = get_card_position(node);
-		}
-		while ((node->prev) && (value_prev > value_current))
-		{
-			value_prev = get_card_position((node->prev));
-			value_current = get_card_position(node);
-			node = swap_card(node, deck);
-
-		}
-		node = node->next;
-	}
-}
-/**
- * sort_deck - sort a deck you put in using
- * insertion sort algorithm
- * @deck: deck
+ * sort_deck - sorts a deck of card
+ * @deck: doubly linked list to sort
  */
 void sort_deck(deck_node_t **deck)
 {
-	insertion_sort_deck(deck);
+	deck_node_t *curr;
+	size_t len;
+	deck_node_t *one, *two, *three, *four;
+
+	len = list_len_deck(*deck);
+
+	if (!deck || !*deck || len < 2)
+		return;
+
+	curr = *deck;
+	while (curr)
+	{
+		if (curr->prev && card_value(curr) < card_value(curr->prev))
+		{
+			one = curr->prev->prev;
+			two = curr->prev;
+			three = curr;
+			four = curr->next;
+
+			two->next = four;
+			if (four)
+				four->prev = two;
+			three->next = two;
+			three->prev = one;
+			if (one)
+				one->next = three;
+			else
+				*deck = three;
+			two->prev = three;
+			curr = *deck;
+			continue;
+		}
+		else
+			curr = curr->next;
+	}
 }
 
+/**
+ * card_value - returns the value of a card
+ * @node: card in a deck
+ *
+ * Return: value between 1 and 52
+ */
+int card_value(deck_node_t *node)
+{
+	char *val[13] = {"Ace", "2", "3", "4", "5", "6",
+		"7", "8", "9", "10", "Jack", "Queen", "King"};
+	char *kinds[4] = {"SPADE", "HEART", "CLUB", "DIAMOND"};
+	int i, kind_val = 0;
+
+	for (i = 1; i <= 13; i++)
+	{
+		if (!_strcmp(node->card->value, val[i - 1]))
+			kind_val = i;
+	}
+
+	for (i = 1; i <= 4; i++)
+	{
+		if (!_strcmp(kinds[node->card->kind], kinds[i - 1]))
+			kind_val = kind_val + (13 * i);
+	}
+
+	return (kind_val);
+}
+
+/**
+ * _strcmp - compares two strings
+ * @s1: first string to compare
+ * @s2: second string to compare
+ *
+ * Return: less than 0 if s1 is less than s2, 0 if they're equal,
+ * more than 0 if s1 is greater than s2
+ */
+int _strcmp(const char *s1, const char *s2)
+{
+	while (*s1 == *s2)
+	{
+		if (*s1 == '\0')
+		{
+			return (0);
+		}
+		s1++;
+		s2++;
+	}
+	return (*s1 - *s2);
+}
+
+/**
+ * list_len_deck - function returns length of list
+ * @list: head of list
+ *
+ * Return: length
+ */
+size_t list_len_deck(deck_node_t *list)
+{
+	size_t len = 0;
+
+	while (list)
+	{
+		len++;
+		list = list->next;
+	}
+	return (len);
+}
