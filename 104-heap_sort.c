@@ -1,5 +1,4 @@
 #include "sort.h"
-
 /**
  * sift_down - fixes a heap
  * @array: the heap to fix
