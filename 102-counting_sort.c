@@ -1,60 +1,54 @@
 #include "sort.h"
-#include <stdio.h>
-/**
- *_calloc - this is a calloc function
- *@nmemb: number of elemets
- *@size: bit size of each element
- *Return: pointer to memory assignement
- */
-void *_calloc(unsigned int nmemb, unsigned int size)
-{
-	unsigned int i = 0;
-	char *p;
+#include "stdlib.h"
 
-	if (nmemb == 0 || size == 0)
-		return ('\0');
-	p = malloc(nmemb * size);
-	if (p == '\0')
-		return ('\0');
-	for (i = 0; i < (nmemb * size); i++)
-		p[i] = '\0';
-	return (p);
-}
 /**
- * counting_sort - this is a counting sort method implementation
+ * counting_sort - sorts an array of integers in ascending order using the
+ * Counting sort algorithm
  * @array: array to sort
- * @size: array size
+ * @size: size of the array to sort
+ *
+ * Return: void
  */
 void counting_sort(int *array, size_t size)
 {
-	int index, maximun = 0, *counter = '\0', *tmp = '\0';
-	size_t i;
+	int i, max;
+	int *count = NULL, *copy = NULL;
+	size_t j, temp, total = 0;
 
-	if (array == '\0' || size < 2)
+
+	if (array == NULL || size < 2)
 		return;
-	/* find maximun number */
-	for (i = 0; i < size; i++)
-		if (array[i] > maximun)
-			maximun = array[i];
-	counter = _calloc(maximun + 1, sizeof(int));
-	tmp = _calloc(size + 1, sizeof(int));
-	/* count the array elements */
-	for (i = 0; i < size; i++)
-		counter[array[i]]++;
-	/* get the accumulative values */
-	for (index = 1; index <= maximun; index++)
-		counter[index] += counter[index - 1];
-	print_array(counter, maximun + 1);
-	/* get the new array sorted */
-	for (i = 0; i < size; ++i)
+	copy = malloc(sizeof(int) * size);
+	if (copy == NULL)
+		return;
+	for (j = 0, max = 0; j < size; j++)
 	{
-		tmp[counter[array[i]] - 1] = array[i];
-		counter[array[i]]--;
+		copy[j] = array[j];
+		if (array[j] > max)
+			max = array[j];
 	}
-	/* replace old array to new array sorted */
-	for (i = 0; i < size; i++)
-		array[i] = tmp[i];
-	free(tmp);
-	free(counter);
-
+	count = malloc(sizeof(int) * (max + 1));
+	if (count == NULL)
+	{
+		free(copy);
+		return;
+	}
+	for (i = 0; i <= max; i++)
+		count[i] = 0;
+	for (j = 0; j < size; j++)
+		count[array[j]] += 1;
+	for (i = 0; i <= max; i++)
+	{
+		temp = count[i];
+		count[i] = total;
+		total += temp;
+	}
+	for (j = 0; j < size; j++)
+	{
+		array[count[copy[j]]] = copy[j];
+		count[copy[j]] += 1;
+	}
+	print_array(count, max + 1);
+	free(count);
+	free(copy);
 }
