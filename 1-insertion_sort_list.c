@@ -1,69 +1,50 @@
 #include "sort.h"
-#include <stdio.h>
 
 /**
- * swap - swaps a node with the next node in the list
- * @list: double pointer to the beginning of the list
- * @node: node to swap
- *
- * Return: void
- */
-void swap(listint_t **list, listint_t *node)
-{
-	node->next->prev = node->prev;
-	if (node->prev)
-		node->prev->next = node->next;
-	else
-		*list = node->next;
-	node->prev = node->next;
-	node->next = node->next->next;
-	node->prev->next = node;
-	if (node->next)
-		node->next->prev = node;
-}
+ * insertion_sort_list - sorts a doubly linked list of integers,
+ * in ascending order using the Insertion sort algorithm
+ * @list: the list
+**/
 
-/**
- * cocktail_sort_list - sorts a doubly linked list of integers in ascending
- * order using the Cocktail shaker sort algorithm
- * @list: Double pointer to the head of the doubly linked list
- *
- * Return: void
- */
-void cocktail_sort_list(listint_t **list)
+void insertion_sort_list(listint_t **list)
 {
-	char swapped = 1;
-	listint_t *temp;
+	listint_t *node, *temp, *next, *temp_next, *temp_prev;
+	int i = 0;
 
-	if (list == NULL || *list == NULL)
+	if (list == NULL || (*list)->next == NULL)
 		return;
-	temp = *list;
-	while (swapped != 0)
+	node = *list;
+	node = node->next;
+	while (node != NULL)
 	{
-		swapped = 0;
-		while (temp->next != NULL)
+		temp = node;
+		next = node->next;
+		temp_next = temp->next;
+		temp_prev = temp->prev;
+
+		while (temp->prev != NULL && temp_prev->n > temp->n)
 		{
-			if (temp->next->n < temp->n)
+			if (temp_next != NULL)
+				temp_next->prev = temp_prev;
+			temp_prev->next = temp_next;
+			if (temp_prev->prev == NULL)
 			{
-				swap(list, temp);
-				swapped = 1;
-				print_list(*list);
+				temp_prev->prev = temp;
+				*list = temp;
+				temp->prev = NULL;
 			}
 			else
-				temp = temp->next;
-		}
-		if (swapped == 0)
-			break;
-		swapped = 0;
-		while (temp->prev != NULL)
-		{
-			if (temp->prev->n > temp->n)
 			{
-				swap(list, temp->prev);
-				swapped = 1;
-				print_list(*list);
+				temp->prev = temp_prev->prev;
+				temp_prev->prev->next = temp;
+				temp_prev->prev = temp;
 			}
-			else
-				temp = temp->prev;
+			temp->next = temp_prev;
+			temp_prev = temp->prev;
+			temp_next = temp->next;
+			print_list(*list);
 		}
+		node = next;
+		i++;
 	}
 }
